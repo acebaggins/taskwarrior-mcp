@@ -57,6 +57,39 @@ export class TaskWarriorService {
     }
   }
 
+  private async getAvailableItems(command: string, headerText: string): Promise<string[]> {
+    try {
+      const stdout = await this.executeCommand(command);
+      // Split by newlines and skip the header line
+      const lines = stdout.split('\n').slice(1);
+      const items: string[] = [];
+      
+      for (const line of lines) {
+        // Skip empty lines and the summary line
+        if (!line.trim() || line.toLowerCase().includes(headerText.toLowerCase())) continue;
+        
+        // Extract item name (first word before whitespace)
+        const item = line.trim().split(/\s+/)[0];
+        if (item) {
+          items.push(item);
+        }
+      }
+      
+      return items;
+    } catch (error) {
+      console.error(`Failed to get available ${headerText}s:`, error);
+      throw error;
+    }
+  }
+
+  async getAvailableProjects(): Promise<string[]> {
+    return this.getAvailableItems('task projects', 'project');
+  }
+
+  async getAvailableTags(): Promise<string[]> {
+    return this.getAvailableItems('task tags', 'tag');
+  }
+
   async createTask(task: TaskUpdate): Promise<Task> {
     const args = this.buildTaskArgs(task);
     const stdout = await this.executeCommand(`task add ${args.join(' ')}`);

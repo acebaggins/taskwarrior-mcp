@@ -82,6 +82,16 @@ describe('TaskWarriorService', () => {
       expect(updatedTask.scheduled).toBe('2024-03-29T10:00:00Z');
     });
 
+    it('should get available projects', async () => {
+      const projects = await service.getAvailableProjects();
+      expect(projects).toContain('test');
+    });
+
+    it('should get available tags', async () => {
+      const tags = await service.getAvailableTags();
+      expect(tags).toContain('api-test');
+    });
+
   });
 
   describe('Task Queries', () => {
