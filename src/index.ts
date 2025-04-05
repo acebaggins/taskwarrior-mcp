@@ -17,7 +17,8 @@ async function main() {
       prompts: {},
       resources: {
         subscribe: true
-      }
+      },
+      completions: {}
     },
   });
 

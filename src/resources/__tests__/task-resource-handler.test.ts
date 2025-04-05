@@ -7,7 +7,8 @@ import {
   ListResourceTemplatesRequestSchema,
   ReadResourceRequestSchema,
   SubscribeRequestSchema,
-  UnsubscribeRequestSchema
+  UnsubscribeRequestSchema,
+  CompleteRequestSchema
 } from "@modelcontextprotocol/sdk/types.js";
 
 describe("TaskResourceHandler", () => {
@@ -20,6 +21,8 @@ describe("TaskResourceHandler", () => {
     mockTaskService = {
       listTasks: jest.fn(),
       getTask: jest.fn(),
+      getAvailableProjects: jest.fn(),
+      getAvailableTags: jest.fn(),
     } as unknown as jest.Mocked<TaskWarriorService>;
 
     mockSetRequestHandler = jest.fn();
@@ -168,7 +171,7 @@ describe("TaskResourceHandler", () => {
     it("should register all resource handlers with the server", () => {
       handler.registerResources(mockServer);
 
-      expect(mockSetRequestHandler).toHaveBeenCalledTimes(5);
+      expect(mockSetRequestHandler).toHaveBeenCalledTimes(6);
       
       // Verify each handler was registered
       const calls = mockSetRequestHandler.mock.calls;
@@ -187,6 +190,9 @@ describe("TaskResourceHandler", () => {
       
       // Unsubscribe handler
       expect(calls[4][0]).toBe(UnsubscribeRequestSchema);
+
+      // Completion handler
+      expect(calls[5][0]).toBe(CompleteRequestSchema);
     });
 
     it("should register handlers with correct response types", async () => {
@@ -264,6 +270,110 @@ describe("TaskResourceHandler", () => {
       const unsubscribeResult = await unsubscribeHandler({ params: { uri: "task:///task/1" } });
       expect(unsubscribeResult).toEqual({});
       expect(handler.getSubscriptions()).not.toContain("task:///task/1");
+    });
+  });
+
+  describe("completion handling", () => {
+    it("should handle project completions", async () => {
+      const mockProjects = ['development', 'backend'];
+      mockTaskService.getAvailableProjects.mockResolvedValue(mockProjects);
+
+      const result = await handler.registerResources(mockServer);
+      
+      // Get the completion handler
+      const completionHandler = mockSetRequestHandler.mock.calls.find(
+        call => call[0] === CompleteRequestSchema
+      )?.[1];
+
+      const completionResult = await completionHandler({
+        params: {
+          ref: { uri: 'task:///project/' },
+          argument: { value: 'dev' }
+        }
+      });
+
+      expect(completionResult).toEqual({
+        completion: {
+          values: ['development'],
+          total: 1,
+          hasMore: false
+        }
+      });
+    });
+
+    it("should handle tag completions", async () => {
+      const mockTags = ['bug', 'feature'];
+      mockTaskService.getAvailableTags.mockResolvedValue(mockTags);
+
+      const result = await handler.registerResources(mockServer);
+      
+      // Get the completion handler
+      const completionHandler = mockSetRequestHandler.mock.calls.find(
+        call => call[0] === CompleteRequestSchema
+      )?.[1];
+
+      const completionResult = await completionHandler({
+        params: {
+          ref: { uri: 'task:///tag/' },
+          argument: { value: 'bug' }
+        }
+      });
+
+      expect(completionResult).toEqual({
+        completion: {
+          values: ['bug'],
+          total: 1,
+          hasMore: false
+        }
+      });
+    });
+
+    it("should return empty completions for unknown resource types", async () => {
+      const result = await handler.registerResources(mockServer);
+      
+      // Get the completion handler
+      const completionHandler = mockSetRequestHandler.mock.calls.find(
+        call => call[0] === CompleteRequestSchema
+      )?.[1];
+
+      const completionResult = await completionHandler({
+        params: {
+          ref: { uri: 'task:///unknown/' },
+          argument: { value: 'test' }
+        }
+      });
+
+      expect(completionResult).toEqual({
+        completion: {
+          values: [],
+          total: 0,
+          hasMore: false
+        }
+      });
+    });
+
+    it("should handle completion requests with invalid ref types", async () => {
+      const result = await handler.registerResources(mockServer);
+      
+      // Get the completion handler
+      const completionHandler = mockSetRequestHandler.mock.calls.find(
+        call => call[0] === CompleteRequestSchema
+      )?.[1];
+
+      const completionResult = await completionHandler({
+        params: {
+          ref: { type: 'invalid' },
+          argument: { value: 'test' }
+        }
+      });
+
+      expect(completionResult).toEqual({
+        completion: {
+          values: [],
+          total: 0,
+          hasMore: false
+        }
+      });
     });
   });
 }); 

@@ -143,6 +143,67 @@ The Taskwarrior MCP exposes the following resources that can be subscribed to fo
 }
 ```
 
+### Resource Completions
+The server supports auto-completion for certain resource fields:
+
+#### Project Completions
+- URI: `task:///project/`
+- Description: Provides fuzzy-matched project suggestions
+- Example Request:
+```json
+{
+  "ref": {
+    "type": "ref/resource",
+    "uri": "task:///project/"
+  },
+  "argument": {
+    "value": "dev"
+  }
+}
+```
+- Example Response:
+```json
+{
+  "completion": {
+    "values": ["development", "devops"],
+    "total": 2,
+    "hasMore": false
+  }
+}
+```
+
+#### Tag Completions
+- URI: `task:///tag/`
+- Description: Provides fuzzy-matched tag suggestions
+- Example Request:
+```json
+{
+  "ref": {
+    "type": "ref/resource",
+    "uri": "task:///tag/"
+  },
+  "argument": {
+    "value": "back"
+  }
+}
+```
+- Example Response:
+```json
+{
+  "completion": {
+    "values": ["backend", "backlog"],
+    "total": 2,
+    "hasMore": false
+  }
+}
+```
+
+Features:
+- Fuzzy matching for typo tolerance
+- Returns all items when input is empty
+- Caches results for better performance
+- No pagination (returns all matches)
+
 ### Resource Discovery
 The server implements the following MCP endpoints for resource discovery:
 

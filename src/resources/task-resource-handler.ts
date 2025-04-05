@@ -7,15 +7,19 @@ import {
   ListResourceTemplatesRequestSchema, 
   ReadResourceRequestSchema, 
   SubscribeRequestSchema, 
-  UnsubscribeRequestSchema
+  UnsubscribeRequestSchema,
+  CompleteRequestSchema
 } from "@modelcontextprotocol/sdk/types.js";
+import { CompletionService } from "../services/completion.js";
 
 export class TaskResourceHandler {
   private taskService: TaskWarriorService;
+  private completionService: CompletionService;
   private subscriptions: Set<string> = new Set();
 
   constructor(taskService: TaskWarriorService) {
     this.taskService = taskService;
+    this.completionService = new CompletionService(taskService);
   }
 
   registerResources(server: McpServer) {
@@ -43,6 +47,33 @@ export class TaskResourceHandler {
     server.server.setRequestHandler(UnsubscribeRequestSchema, async (request) => {
       this.unsubscribe(request.params.uri);
       return {};
+    });
+
+    server.server.setRequestHandler(CompleteRequestSchema, async (request) => {
+      const { ref, argument } = request.params;
+      
+      // Handle project completions
+      if (typeof ref.uri === 'string' && ref.uri.startsWith('task:///project/')) {
+        return {
+          completion: await this.completionService.completeProjects(argument.value)
+        };
+      }
+      
+      // Handle tag completions
+      if (typeof ref.uri === 'string' && ref.uri.startsWith('task:///tag/')) {
+        return {
+          completion: await this.completionService.completeTags(argument.value)
+        };
+      }
+
+      // Default empty completion for other resources
+      return {
+        completion: {
+          values: [],
+          total: 0,
+          hasMore: false
+        }
+      };
     });
   }
 
