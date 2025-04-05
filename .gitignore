@@ -30,3 +30,5 @@ coverage/
 # Temporary files
 *.tmp
 *.temp 
+
+.task-test/

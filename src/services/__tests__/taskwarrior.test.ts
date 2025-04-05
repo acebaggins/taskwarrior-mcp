@@ -1,27 +1,18 @@
 import { exec, execSync } from 'child_process';
 import { execAsync, TaskWarriorService } from '../taskwarrior';
+import { taskTestConfig } from './taskwarrior-setup';
 
-describe.skip('TaskWarriorService', () => {
+describe('TaskWarriorService', () => {
   let service: TaskWarriorService;
   let testTaskUuid: string;
 
   beforeAll(() => {
-    service = new TaskWarriorService();
-  }, 10000); // 10 second timeout
+    service = new TaskWarriorService({
+      taskData: taskTestConfig.taskData,
+      taskRc: taskTestConfig.taskRc
+    });
+  }, 30_000); // 30 second timeout
   
-  // puuuuuuurrge
-  // task rc.bulk=0 rc.confirmation=off recurrence.confirmation=no -PARENT tag:api-test purge
-  // task rc.bulk=0 rc.confirmation=off recurrence.confirmation=no tag:api-test purge
-  afterAll(() => {
-    try {
-      execSync('task rc.bulk=0 rc.confirmation=off recurrence.confirmation=no tag:api-test -PARENT delete', { stdio: 'ignore' });
-      execSync('task rc.bulk=0 rc.confirmation=off recurrence.confirmation=no tag:api-test delete', { stdio: 'ignore' });
-    } catch (error) {
-      // Ignore any errors during cleanup
-    }
-  }, 30_000); 
-
-
   describe('Task CRUD Operations', () => {
     it('should create a task', async () => {
       const task = await service.createTask({

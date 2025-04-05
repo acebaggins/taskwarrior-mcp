@@ -5,15 +5,29 @@ import { Task, TaskUpdate, TaskQuery, TaskwarriorTask, RecurrenceFrequency, Task
 export const execAsync = promisify(exec);
 
 export class TaskWarriorService {
-  constructor() {
-    // Bind methods o preserve 'this' context
+  private readonly environmentVariables: Record<string, string | undefined>;
+
+  constructor(options?: {
+    taskData?: string;
+    taskRc?: string;
+    additionalEnvVars?: Record<string, string>;
+  }) {
     this.mapTask = this.mapTask.bind(this);
     this.parseTaskwarriorTimestamp = this.parseTaskwarriorTimestamp.bind(this);
     this.formatDateForTaskwarrior = this.formatDateForTaskwarrior.bind(this);
+    
+    this.environmentVariables = {
+      ...process.env, 
+      ...(options?.taskData && { TASKDATA: options.taskData }),
+      ...(options?.taskRc && { TASKRC: options.taskRc }),
+      ...options?.additionalEnvVars
+    };
   }
 
   private async executeCommand(command: string): Promise<string> {
-    const { stdout } = await execAsync(command);
+    const { stdout } = await execAsync(command, { 
+      env: this.environmentVariables 
+    });
     return stdout;
   }
 
