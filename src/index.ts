@@ -2,12 +2,23 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import { TaskWarriorService } from './services/taskwarrior.js';
+import { TaskResourceHandler } from './resources/task-resource-handler.js';
 
 async function main() {
   const taskService = new TaskWarriorService();
+  const taskResourceHandler = new TaskResourceHandler(taskService);
+  
   const server = new McpServer({
     name: "taskwarrior-mcp",
-    version: "1.0.0"
+    version: "1.0.0",
+  }, {
+    capabilities: {
+      tools: {},
+      prompts: {},
+      resources: {
+        subscribe: true
+      }
+    },
   });
 
   // Setup tools
@@ -291,7 +302,8 @@ async function main() {
     }
   );
 
-  // Start the server
+  taskResourceHandler.registerResources(server);
+
   const transport = new StdioServerTransport();
   await server.connect(transport);
   console.error("Taskwarrior MCP running on stdio");

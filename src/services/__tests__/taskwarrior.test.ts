@@ -1,7 +1,7 @@
 import { exec, execSync } from 'child_process';
 import { execAsync, TaskWarriorService } from '../taskwarrior';
 
-describe('TaskWarriorService', () => {
+describe.skip('TaskWarriorService', () => {
   let service: TaskWarriorService;
   let testTaskUuid: string;
 

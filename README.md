@@ -71,6 +71,86 @@ npx @modelcontextprotocol/inspector node dist/index.js
 - `task.filter`: Filter tasks by specific criteria
 - `task.search`: Search tasks by text content
 
+## Resources
+
+The Taskwarrior MCP exposes the following resources that can be subscribed to for real-time updates:
+
+### Task List Resource
+- URI: `task:///list`
+- Description: Lists all active (pending) tasks
+- MIME Type: `application/json`
+- Content: Array of task objects with basic task information
+- Subscription: Yes - Updates when tasks are created, modified, or deleted
+- Example Response:
+```json
+{
+  "contents": [{
+    "uri": "task:///list",
+    "mimeType": "application/json",
+    "text": "[{\"id\": 1, \"description\": \"Implement MCP server\", \"project\": \"development\", \"tags\": [\"backend\", \"mcp\"], \"priority\": \"H\"}]"
+  }]
+}
+```
+
+### Task Detail Resource
+- URI Template: `task:///task/{id}`
+- Description: Detailed information about a specific task
+- MIME Type: `application/json`
+- Content: Complete task object including all metadata, annotations, and history
+- Subscription: Yes - Updates when the specific task is modified
+- Example Response:
+```json
+{
+  "contents": [{
+    "uri": "task:///task/1",
+    "mimeType": "application/json",
+    "text": "{\"id\": \"1\", \"description\": \"Implement MCP server\", \"project\": \"development\", \"tags\": [\"backend\", \"mcp\"], \"priority\": \"H\", \"status\": \"pending\", \"annotations\": [], \"entry\": \"2024-03-20T12:00:00Z\", \"modified\": \"2024-03-20T12:00:00Z\"}"
+  }]
+}
+```
+
+### Task Project Resource
+- URI Template: `task:///project/{name}`
+- Description: Tasks belonging to a specific project
+- MIME Type: `application/json`
+- Content: Array of task objects filtered by project
+- Subscription: Yes - Updates when tasks in the project are modified
+- Example Response:
+```json
+{
+  "contents": [{
+    "uri": "task:///project/development",
+    "mimeType": "application/json",
+    "text": "[{\"id\": 1, \"description\": \"Implement MCP server\", \"project\": \"development\", \"tags\": [\"backend\", \"mcp\"], \"priority\": \"H\"}]"
+  }]
+}
+```
+
+### Task Tag Resource
+- URI Template: `task:///tag/{name}`
+- Description: Tasks with a specific tag
+- MIME Type: `application/json`
+- Content: Array of task objects filtered by tag
+- Subscription: Yes - Updates when tasks with the tag are modified
+- Example Response:
+```json
+{
+  "contents": [{
+    "uri": "task:///tag/backend",
+    "mimeType": "application/json",
+    "text": "[{\"id\": 1, \"description\": \"Implement MCP server\", \"project\": \"development\", \"tags\": [\"backend\", \"mcp\"], \"priority\": \"H\"}]"
+  }]
+}
+```
+
+### Resource Discovery
+The server implements the following MCP endpoints for resource discovery:
+
+- `resources/list`: Lists all available resources
+- `resources/read`: Reads the contents of a specific resource
+- `resources/subscribe`: Subscribes to updates for a resource
+- `resources/unsubscribe`: Unsubscribes from updates for a resource
+
 ## Example Messages
 
 ```json

@@ -45,7 +45,6 @@ export class TaskWarriorService {
 
   async createTask(task: TaskUpdate): Promise<Task> {
     const args = this.buildTaskArgs(task);
-    console.log(`task add ${args.join(' ')}`);
     const stdout = await this.executeCommand(`task add ${args.join(' ')}`);
     // Extract UUID from "Created task UUID." response
     const uuid = stdout.match(/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i)?.[1];
