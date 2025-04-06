@@ -3,10 +3,14 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { z } from "zod";
 import { TaskWarriorService } from './services/taskwarrior.js';
 import { TaskResourceHandler } from './resources/task-resource-handler.js';
+import { TaskPromptHandler } from './prompts/task-prompt-handler.js';
+import { CompletionService } from './services/completion.js';
 
 async function main() {
   const taskService = new TaskWarriorService();
+  const completionService = new CompletionService(taskService);
   const taskResourceHandler = new TaskResourceHandler(taskService);
+  const taskPromptHandler = new TaskPromptHandler(completionService);
   
   const server = new McpServer({
     name: "taskwarrior-mcp",
@@ -303,7 +307,9 @@ async function main() {
     }
   );
 
+  // Register handlers
   taskResourceHandler.registerResources(server);
+  taskPromptHandler.registerPrompts(server);
 
   const transport = new StdioServerTransport();
   await server.connect(transport);

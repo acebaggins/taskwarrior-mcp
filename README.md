@@ -10,6 +10,7 @@ An MCP for Taskwarrior.
 - Task annotations and notes
 - Task recurrence handling
 - Real-time task updates
+- Smart prompts with autocompletion
 
 ## Installation
 
@@ -256,4 +257,35 @@ The server implements the following MCP endpoints for resource discovery:
 
 ## License
 
-MIT License - See [LICENSE](LICENSE) file for details 
+MIT License - See [LICENSE](LICENSE) file for details
+
+## Prompts
+
+The Taskwarrior MCP provides several smart prompts that help with common task management workflows. All prompts support autocompletion for their arguments.
+
+### Available Prompts
+
+- `today-project`: Get all tasks for a specific project that are scheduled for today
+  - Arguments:
+    - `project`: Project name (autocompletes from available projects)
+
+- `start-work`: Start working on a task and optionally add a focus note
+  - Arguments:
+    - `description`: Task description (autocompletes from pending tasks)
+    - `focus`: Optional note about what you're specifically working on
+
+- `complete-with-review`: Mark a task as complete and add a review note
+  - Arguments:
+    - `description`: Task description (autocompletes from pending tasks)
+    - `accomplished`: What was accomplished in this task
+
+- `search-notes`: Display all annotations for tasks matching a description
+  - Arguments:
+    - `description`: Task description to search for (autocompletes from pending tasks)
+
+### Autocompletion
+
+The prompts support intelligent autocompletion for their arguments:
+- Project names are autocompleted from your existing projects
+- Task descriptions are autocompleted from your pending tasks
+- All autocompletions support fuzzy matching for easier finding 

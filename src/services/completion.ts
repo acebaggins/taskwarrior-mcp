@@ -1,14 +1,18 @@
 import Fuse from 'fuse.js';
 import { TaskWarriorService } from './taskwarrior.js';
+import { Task } from '../types/task.js';
 
 export class CompletionService {
   private projectFuse: Fuse<string>;
   private tagFuse: Fuse<string>;
+  private taskFuse: Fuse<Task>;
   private taskService: TaskWarriorService;
   private projectsLoaded: boolean = false;
   private tagsLoaded: boolean = false;
+  private tasksLoaded: boolean = false;
   private projects: string[] = [];
   private tags: string[] = [];
+  private tasks: Task[] = [];
 
   constructor(taskService: TaskWarriorService) {
     this.taskService = taskService;
@@ -19,6 +23,12 @@ export class CompletionService {
       useExtendedSearch: true
     });
     this.tagFuse = new Fuse([], {
+      threshold: 0.3,
+      includeScore: true,
+      useExtendedSearch: true
+    });
+    this.taskFuse = new Fuse([], {
+      keys: ['description'],
       threshold: 0.3,
       includeScore: true,
       useExtendedSearch: true
@@ -38,6 +48,14 @@ export class CompletionService {
       this.tags = await this.taskService.getAvailableTags();
       this.tagFuse.setCollection(this.tags);
       this.tagsLoaded = true;
+    }
+  }
+
+  private async ensureTasksLoaded() {
+    if (!this.tasksLoaded) {
+      this.tasks = await this.taskService.listTasks({ query: "status:pending" });
+      this.taskFuse.setCollection(this.tasks);
+      this.tasksLoaded = true;
     }
   }
 
@@ -70,6 +88,23 @@ export class CompletionService {
     const results = this.tagFuse.search(input);
     return {
       values: results.map(r => r.item),
+      total: results.length,
+      hasMore: false
+    };
+  }
+
+  async completeTaskDescriptions(input: string): Promise<{ values: string[], total: number, hasMore: boolean }> {
+    await this.ensureTasksLoaded();
+    if (!input.trim()) {
+      return {
+        values: this.tasks.map(t => t.description),
+        total: this.tasks.length,
+        hasMore: false
+      };
+    }
+    const results = this.taskFuse.search(input);
+    return {
+      values: results.map(r => r.item.description),
       total: results.length,
       hasMore: false
     };
