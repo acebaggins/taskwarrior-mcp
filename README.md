@@ -22,11 +22,17 @@ npm install @tfr/taskwarrior-mcp
 
 ### With npx
 
-```bash
-npx @tfr/taskwarrior-mcp
+```zsh
+npx taskwarrior-mcp
 ```
 
 ### Config
+
+#### Notes for Claude Desktop
+
+The way Claude Desktop loads an MCP is by spawning a new process, not a shell process, so it doesn't have any of your env info. If you use something like `mise` then nothing works and the error messages aren't great. 
+
+Some people suggest hardcoding in the paths, which works, I suppose, but I took the fix from [here](https://github.com/modelcontextprotocol/servers/issues/64#issuecomment-2528308551) and launch Claude with `open -a Claude` (hopefully from a terminal profile where you won't regret it).
 
 Add this to your config (`claude_desktop_config.json`):
 
@@ -37,7 +43,7 @@ Add this to your config (`claude_desktop_config.json`):
       "command": "npx",
       "args": [
         "-y",
-        "@tfr/taskwarrior-mcp"
+        "taskwarrior-mcp"
       ]
     }
   }
