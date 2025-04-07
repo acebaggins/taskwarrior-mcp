@@ -1,7 +1,7 @@
 import { TaskResourceHandler } from '../task-resource-handler.js';
 import { TaskWarriorService } from '../../services/taskwarrior.js';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { Task, TaskStatus } from '../../types/task.js';
+import { Task } from '../../types/task.js';
 import {
   ListResourcesRequestSchema,
   ListResourceTemplatesRequestSchema,

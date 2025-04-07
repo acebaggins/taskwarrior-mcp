@@ -91,6 +91,7 @@ describe('Task Prompts', () => {
 
     it('should throw error for unknown prompt', () => {
       expect(() => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         getPromptMessage('unknown-prompt' as any, {});
       }).toThrow('Unknown prompt: unknown-prompt');
     });

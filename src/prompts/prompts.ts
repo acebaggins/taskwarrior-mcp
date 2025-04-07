@@ -35,7 +35,7 @@ export const TASK_PROMPTS = {
 
 export type TaskPromptName = keyof typeof TASK_PROMPTS;
 
-export const getPromptMessage = (name: TaskPromptName, args: Record<string, string>) => {
+export const getPromptMessage = (name: TaskPromptName, args: Record<string, string>): string => {
   switch (name) {
     case 'today-project':
       return `List all tasks in project "${args.project}" that are scheduled for today`;

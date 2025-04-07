@@ -266,12 +266,14 @@ export class TaskWarriorService {
     }
 
     // TaskWarrior format: YYYYMMDDTHHMMSSZ
+    /* eslint-disable no-magic-numbers */
     const year = timestamp.substring(0, 4);
     const month = timestamp.substring(4, 6);
     const day = timestamp.substring(6, 8);
     const hour = timestamp.substring(9, 11);
     const minute = timestamp.substring(11, 13);
     const second = timestamp.substring(13, 15);
+    /* eslint-enable no-magic-numbers */
 
     // If we have a time component, include it
     if (hour && minute) {
@@ -297,10 +299,12 @@ export class TaskWarriorService {
     // Otherwise parse and format from other date formats
     const d = new Date(date);
     const year = d.getFullYear();
+    /* eslint-disable no-magic-numbers */
     const month = String(d.getMonth() + 1).padStart(2, '0');
     const day = String(d.getDate()).padStart(2, '0');
     const hours = String(d.getHours()).padStart(2, '0');
     const minutes = String(d.getMinutes()).padStart(2, '0');
+    /* eslint-enable no-magic-numbers */
 
     // If the original date had a time component, include it
     if (date.includes('T')) {

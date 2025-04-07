@@ -35,7 +35,7 @@ export class CompletionService {
     });
   }
 
-  private async ensureProjectsLoaded() {
+  private async ensureProjectsLoaded(): Promise<void> {
     if (!this.projectsLoaded) {
       this.projects = await this.taskService.getAvailableProjects();
       this.projectFuse.setCollection(this.projects);
@@ -43,7 +43,7 @@ export class CompletionService {
     }
   }
 
-  private async ensureTagsLoaded() {
+  private async ensureTagsLoaded(): Promise<void> {
     if (!this.tagsLoaded) {
       this.tags = await this.taskService.getAvailableTags();
       this.tagFuse.setCollection(this.tags);
@@ -51,7 +51,7 @@ export class CompletionService {
     }
   }
 
-  private async ensureTasksLoaded() {
+  private async ensureTasksLoaded(): Promise<void> {
     if (!this.tasksLoaded) {
       this.tasks = await this.taskService.listTasks({ query: 'status:pending' });
       this.taskFuse.setCollection(this.tasks);

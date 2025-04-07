@@ -12,11 +12,13 @@ export type MCPMessageType =
   | 'task.annotate'
   | 'backup.create';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface MCPMessage<T = any> {
   type: MCPMessageType;
   payload: T;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface MCPResponse<T = any> {
   success: boolean;
   data?: T;

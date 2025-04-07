@@ -9,7 +9,7 @@ export class TaskToolsHandler {
     this.taskService = taskService;
   }
 
-  registerTools(server: McpServer) {
+  registerTools(server: McpServer): void {
     // Create Task
     server.tool(
       'create_task',

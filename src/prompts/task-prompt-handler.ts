@@ -14,7 +14,7 @@ export class TaskPromptHandler {
     this.completionService = completionService;
   }
 
-  registerPrompts(server: McpServer) {
+  registerPrompts(server: McpServer): void {
     // Register list prompts handler
     server.server.setRequestHandler(ListPromptsRequestSchema, async () => {
       return {

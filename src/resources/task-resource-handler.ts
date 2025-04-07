@@ -1,8 +1,7 @@
-import { Resource, ResourceTemplate } from '@modelcontextprotocol/sdk/types.js';
 import { TaskWarriorService } from '../services/taskwarrior.js';
-import { Task } from '../types/task.js';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import {
+  Resource, ResourceTemplate,
   ListResourcesRequestSchema,
   ListResourceTemplatesRequestSchema,
   ReadResourceRequestSchema,
@@ -22,7 +21,7 @@ export class TaskResourceHandler {
     this.completionService = new CompletionService(taskService);
   }
 
-  registerResources(server: McpServer) {
+  registerResources(server: McpServer): void {
     server.server.setRequestHandler(ListResourcesRequestSchema, async () => {
       return {
         resources: await this.listResources(),
@@ -66,7 +65,6 @@ export class TaskResourceHandler {
         };
       }
 
-      // Default empty completion for other resources
       return {
         completion: {
           values: [],
@@ -75,6 +73,7 @@ export class TaskResourceHandler {
         },
       };
     });
+    
   }
 
   async listResources(): Promise<Resource[]> {

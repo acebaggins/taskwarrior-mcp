@@ -8,7 +8,7 @@ import { TaskPromptHandler } from './prompts/task-prompt-handler.js';
 import { CompletionService } from './services/completion.js';
 import { TaskToolsHandler } from './tools/task-tools-handler.js';
 
-async function main() {
+async function main(): Promise<void> {
   const taskService = new TaskWarriorService();
   const completionService = new CompletionService(taskService);
   const taskResourceHandler = new TaskResourceHandler(taskService);
