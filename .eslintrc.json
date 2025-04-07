@@ -1,0 +1,55 @@
+{
+  "parser": "@typescript-eslint/parser",
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "plugins": ["@typescript-eslint"],
+  "env": {
+    "node": true,
+    "es6": true,
+    "jest": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "sourceType": "module"
+  },
+  "rules": {
+    "@typescript-eslint/no-explicit-any": "error",
+    "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+    "@typescript-eslint/explicit-function-return-type": ["error", { 
+      "allowExpressions": true,
+      "allowTypedFunctionExpressions": true,
+      "allowHigherOrderFunctions": true,
+      "allowDirectConstAssertionInArrowFunctions": true,
+      "allowConciseArrowFunctionExpressionsStartingWithVoid": true
+    }],
+    "no-debugger": "error",
+    "no-duplicate-imports": "error",
+    "no-unreachable": "error",
+    "no-unsafe-finally": "error",
+    "no-unsafe-negation": "error",
+    "no-var": "error",
+    "prefer-const": "error",
+    "eqeqeq": ["error", "always"],
+    "no-eval": "error",
+    "no-implied-eval": "error",
+    "no-magic-numbers": ["error", { "ignore": [-1, 0, 1] }],
+    "no-unused-expressions": "error",
+    "no-useless-return": "error",
+    "consistent-return": "error"
+  },
+  "overrides": [
+    {
+      "files": ["**/__tests__/**", "**/*.test.ts"],
+      "rules": {
+        "no-console": "off",
+        "no-magic-numbers": "off",
+        "@typescript-eslint/no-explicit-any": "warn",
+        "@typescript-eslint/no-unused-vars": ["off", { "argsIgnorePattern": "^_" }],
+        "@typescript-eslint/explicit-function-return-type": "off",
+        "no-duplicate-imports": "off"
+      }
+    }
+  ]
+} 
