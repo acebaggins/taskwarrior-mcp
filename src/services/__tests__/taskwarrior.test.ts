@@ -9,17 +9,17 @@ describe('TaskWarriorService', () => {
   beforeAll(() => {
     service = new TaskWarriorService({
       taskData: taskTestConfig.taskData,
-      taskRc: taskTestConfig.taskRc
+      taskRc: taskTestConfig.taskRc,
     });
   }, 30_000); // 30 second timeout
-  
+
   describe('Task CRUD Operations', () => {
     it('should create a task', async () => {
       const task = await service.createTask({
         description: 'Test task for API testing',
         tags: ['api-test'],
         project: 'test',
-        priority: 'M'
+        priority: 'M',
       });
 
       expect(task).toBeDefined();
@@ -46,8 +46,8 @@ describe('TaskWarriorService', () => {
         recurrence: {
           frequency: 'weekly',
           interval: 1,
-          until: '2024-12-31T10:00Z'
-        }
+          until: '2024-12-31T10:00Z',
+        },
       });
 
       expect(task).toBeDefined();
@@ -73,7 +73,7 @@ describe('TaskWarriorService', () => {
         description: 'Updated test task',
         priority: 'H',
         wait: '2024-03-28T10:00Z',
-        scheduled: '2024-03-29T10:00Z'
+        scheduled: '2024-03-29T10:00Z',
       });
 
       expect(updatedTask.description).toBe('Updated test task');
@@ -91,7 +91,6 @@ describe('TaskWarriorService', () => {
       const tags = await service.getAvailableTags();
       expect(tags).toContain('api-test');
     });
-
   });
 
   describe('Task Queries', () => {
@@ -102,22 +101,23 @@ describe('TaskWarriorService', () => {
     });
 
     it('should support complex queries', async () => {
-      testTaskUuid = (await service.createTask({
-        description: 'Test task for API testing',
-        tags: ['api-test'],
-        project: 'test',
-        priority: 'M'
-      })).id;
+      testTaskUuid = (
+        await service.createTask({
+          description: 'Test task for API testing',
+          tags: ['api-test'],
+          project: 'test',
+          priority: 'M',
+        })
+      ).id;
 
-      const tasks = await service.listTasks({ 
-        query: 'tag:api-test -COMPLETED' 
+      const tasks = await service.listTasks({
+        query: 'tag:api-test -COMPLETED',
       });
 
       expect(tasks.length).toBeGreaterThan(0);
       expect(tasks.every(t => t.project === 'test')).toBe(true);
       expect(tasks.every(t => t.status !== 'completed')).toBe(true);
     });
-
   });
 
   describe('Task State Operations', () => {
@@ -144,7 +144,7 @@ describe('TaskWarriorService', () => {
         description: 'Test task for annotations',
         tags: ['api-test'],
         project: 'test',
-        priority: 'M'
+        priority: 'M',
       });
       annotationTaskUuid = task.id;
     }, 10000);
@@ -158,10 +158,7 @@ describe('TaskWarriorService', () => {
     }, 10000);
 
     it('should add annotations', async () => {
-      const taskWithAnnotation = await service.addAnnotation(
-        annotationTaskUuid,
-        'Test annotation'
-      );
+      const taskWithAnnotation = await service.addAnnotation(annotationTaskUuid, 'Test annotation');
 
       expect(taskWithAnnotation.annotations).toHaveLength(1);
       expect(taskWithAnnotation.annotations![0].description).toBe('Test annotation');
@@ -176,9 +173,7 @@ describe('TaskWarriorService', () => {
     });
 
     it('should handle invalid task operations', async () => {
-      await expect(
-        service.updateTask('non-existent-uuid', { description: 'test' })
-      ).rejects.toThrow();
+      await expect(service.updateTask('non-existent-uuid', { description: 'test' })).rejects.toThrow();
     });
 
     it('should not throw when a non-existant task is deleted', async () => {
@@ -186,4 +181,4 @@ describe('TaskWarriorService', () => {
       expect(result).toBe(false);
     });
   });
-}); 
+});

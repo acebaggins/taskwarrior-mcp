@@ -20,7 +20,7 @@ describe('CompletionService', () => {
       mockTaskService.getAvailableProjects.mockResolvedValue(mockProjects);
 
       const result = await completionService.completeProjects('dev');
-      
+
       expect(result.values).toEqual(['development', 'devops']);
       expect(result.total).toBe(2);
       expect(result.hasMore).toBe(false);
@@ -31,7 +31,7 @@ describe('CompletionService', () => {
       mockTaskService.getAvailableProjects.mockResolvedValue(mockProjects);
 
       const result = await completionService.completeProjects('');
-      
+
       expect(result.values).toEqual(mockProjects);
       expect(result.total).toBe(3);
       expect(result.hasMore).toBe(false);
@@ -42,7 +42,7 @@ describe('CompletionService', () => {
       mockTaskService.getAvailableProjects.mockResolvedValue(mockProjects);
 
       const result = await completionService.completeProjects('develpment');
-      
+
       expect(result.values).toContain('development');
       expect(result.total).toBeGreaterThan(0);
     });
@@ -54,7 +54,7 @@ describe('CompletionService', () => {
       mockTaskService.getAvailableTags.mockResolvedValue(mockTags);
 
       const result = await completionService.completeTags('back');
-      
+
       expect(result.values).toEqual(['backend']);
       expect(result.total).toBe(1);
       expect(result.hasMore).toBe(false);
@@ -65,7 +65,7 @@ describe('CompletionService', () => {
       mockTaskService.getAvailableTags.mockResolvedValue(mockTags);
 
       const result = await completionService.completeTags('');
-      
+
       expect(result.values).toEqual(mockTags);
       expect(result.total).toBe(3);
       expect(result.hasMore).toBe(false);
@@ -76,7 +76,7 @@ describe('CompletionService', () => {
       mockTaskService.getAvailableTags.mockResolvedValue(mockTags);
 
       const result = await completionService.completeTags('feat');
-      
+
       expect(result.values).toContain('feature');
       expect(result.total).toBeGreaterThan(0);
     });
@@ -107,4 +107,4 @@ describe('CompletionService', () => {
       expect(mockTaskService.getAvailableTags).toHaveBeenCalledTimes(1);
     });
   });
-}); 
+});

@@ -22,10 +22,10 @@ export class BackupService {
   async createBackup(): Promise<BackupResult> {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const backupPath = path.join(this.backupDir, `taskwarrior-backup-${timestamp}.tar.gz`);
-    
+
     // Create backup
     await execAsync(`tar -czf ${backupPath} -C ${process.env.TASKWARRIOR_DATA_DIR} .`);
-    
+
     // Verify backup
     const backupExists = fs.existsSync(backupPath);
     if (!backupExists) {
@@ -37,7 +37,7 @@ export class BackupService {
 
     return {
       path: backupPath,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   }
 
@@ -45,14 +45,14 @@ export class BackupService {
     try {
       const files = fs.readdirSync(this.backupDir);
       const now = new Date();
-      
+
       for (const file of files) {
         if (!file.startsWith('taskwarrior-backup-')) continue;
-        
+
         const filePath = path.join(this.backupDir, file);
         const stats = fs.statSync(filePath);
         const fileAge = (now.getTime() - stats.mtime.getTime()) / (1000 * 60 * 60 * 24);
-        
+
         if (fileAge > this.retentionDays) {
           fs.unlinkSync(filePath);
         }
@@ -61,4 +61,4 @@ export class BackupService {
       console.error('Failed to clean up old backups:', error);
     }
   }
-} 
+}

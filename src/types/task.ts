@@ -90,9 +90,11 @@ export const TaskUpdateSchema = z.object({
   priority: z.enum(['H', 'M', 'L']).optional(),
   wait: z.string().optional(),
   scheduled: z.string().optional(),
-  recurrence: z.object({
-    frequency: z.enum(['daily', 'weekly', 'monthly', 'yearly']),
-    interval: z.number(),
-    until: z.string().optional()
-  }).optional()
-}); 
+  recurrence: z
+    .object({
+      frequency: z.enum(['daily', 'weekly', 'monthly', 'yearly']),
+      interval: z.number(),
+      until: z.string().optional(),
+    })
+    .optional(),
+});

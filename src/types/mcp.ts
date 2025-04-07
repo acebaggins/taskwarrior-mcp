@@ -1,6 +1,6 @@
 import { Task, TaskUpdate, TaskQuery } from './task';
 
-export type MCPMessageType = 
+export type MCPMessageType =
   | 'task.create'
   | 'task.update'
   | 'task.delete'
@@ -72,4 +72,4 @@ export interface TaskwarriorService {
   stopTask(id: string, note?: string): Promise<Task>;
   completeTask(id: string, note?: string): Promise<Task>;
   addNote(id: string, note: string, isAnnotation?: boolean): Promise<Task>;
-} 
+}

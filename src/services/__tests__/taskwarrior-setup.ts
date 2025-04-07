@@ -25,12 +25,12 @@ rc.dateformat=Y-M-DTH:N
 }
 
 try {
-  execSync('task --version', { 
+  execSync('task --version', {
     env: {
       ...process.env,
       TASKDATA: testDataDir,
-      TASKRC: testConfigFile
-    }
+      TASKRC: testConfigFile,
+    },
   });
 } catch (error) {
   console.error('Failed to initialize test Taskwarrior instance');
@@ -39,5 +39,5 @@ try {
 
 export const taskTestConfig = {
   taskData: testDataDir,
-  taskRc: testConfigFile
+  taskRc: testConfigFile,
 };

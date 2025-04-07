@@ -1,39 +1,43 @@
 import { exec } from 'child_process';
 import { promisify } from 'util';
-import { Task, TaskUpdate, TaskQuery, TaskwarriorTask, RecurrenceFrequency, TaskDependency, TaskPriority } from '../types/task';
+import {
+  Task,
+  TaskUpdate,
+  TaskQuery,
+  TaskwarriorTask,
+  RecurrenceFrequency,
+  TaskDependency,
+  TaskPriority,
+} from '../types/task';
 
 export const execAsync = promisify(exec);
 
 export class TaskWarriorService {
   private readonly environmentVariables: Record<string, string | undefined>;
 
-  constructor(options?: {
-    taskData?: string;
-    taskRc?: string;
-    additionalEnvVars?: Record<string, string>;
-  }) {
+  constructor(options?: { taskData?: string; taskRc?: string; additionalEnvVars?: Record<string, string> }) {
     this.mapTask = this.mapTask.bind(this);
     this.parseTaskwarriorTimestamp = this.parseTaskwarriorTimestamp.bind(this);
     this.formatDateForTaskwarrior = this.formatDateForTaskwarrior.bind(this);
-    
+
     this.environmentVariables = {
-      ...process.env, 
+      ...process.env,
       ...(options?.taskData && { TASKDATA: options.taskData }),
       ...(options?.taskRc && { TASKRC: options.taskRc }),
-      ...options?.additionalEnvVars
+      ...options?.additionalEnvVars,
     };
   }
 
   private async executeCommand(command: string): Promise<string> {
-    const { stdout } = await execAsync(command, { 
-      env: this.environmentVariables 
+    const { stdout } = await execAsync(command, {
+      env: this.environmentVariables,
     });
     return stdout;
   }
 
   async listTasks(query: TaskQuery): Promise<Task[]> {
     try {
-      const queryString = query.query 
+      const queryString = query.query
         ? `${this.sanitizeQuery(query.query)}${query.query.includes('+DELETED') ? '' : ' -DELETED'}`
         : '-DELETED';
       const command = `task ${queryString} export`;
@@ -63,18 +67,18 @@ export class TaskWarriorService {
       // Split by newlines and skip the header line
       const lines = stdout.split('\n').slice(1);
       const items: string[] = [];
-      
+
       for (const line of lines) {
         // Skip empty lines and the summary line
         if (!line.trim() || line.toLowerCase().includes(headerText.toLowerCase())) continue;
-        
+
         // Extract item name (first word before whitespace)
         const item = line.trim().split(/\s+/)[0];
         if (item) {
           items.push(item);
         }
       }
-      
+
       return items;
     } catch (error) {
       console.error(`Failed to get available ${headerText}s:`, error);
@@ -96,7 +100,7 @@ export class TaskWarriorService {
     // Extract UUID from "Created task UUID." response
     const uuid = stdout.match(/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i)?.[1];
     if (!uuid) throw new Error('Failed to create task');
-    
+
     // Get the newly created task
     const createdTask = await this.getTask(uuid);
     if (!createdTask) throw new Error('Failed to retrieve created task');
@@ -171,22 +175,25 @@ export class TaskWarriorService {
       due: this.parseTaskWarriorTimestampUnsafe(task.due),
       start: this.parseTaskWarriorTimestampUnsafe(task.start),
       end: this.parseTaskWarriorTimestampUnsafe(task.end),
-      priority: task.priority as TaskPriority || 'M',  // Default to 'M' if not specified
+      priority: (task.priority as TaskPriority) || 'M', // Default to 'M' if not specified
       urgency: task.urgency,
       wait: this.parseTaskWarriorTimestampUnsafe(task.wait),
       scheduled: this.parseTaskWarriorTimestampUnsafe(task.scheduled),
       dependencies: task.depends,
-      annotations: task.annotations?.map(ann => ({
-        date: this.parseTaskwarriorTimestamp(ann.entry),
-        description: ann.description
-      })) || [],
+      annotations:
+        task.annotations?.map(ann => ({
+          date: this.parseTaskwarriorTimestamp(ann.entry),
+          description: ann.description,
+        })) || [],
       entry: this.parseTaskwarriorTimestamp(task.entry),
       modified: this.parseTaskwarriorTimestamp(task.modified),
-      recurrence: task.recur ? {
-        frequency: this.mapRecurrenceFrequency(task.recur),
-        interval: 1, // Taskwarrior doesn't support intervals in the same way
-        until: this.parseTaskWarriorTimestampUnsafe(task.until)
-      } : undefined
+      recurrence: task.recur
+        ? {
+            frequency: this.mapRecurrenceFrequency(task.recur),
+            interval: 1, // Taskwarrior doesn't support intervals in the same way
+            until: this.parseTaskWarriorTimestampUnsafe(task.until),
+          }
+        : undefined,
     };
   }
 
@@ -209,7 +216,7 @@ export class TaskWarriorService {
 
   private buildTaskArgs(task: TaskUpdate): string[] {
     const args: string[] = [];
-    
+
     if (task.description) {
       args.push(`"description:${task.description}"`);
     }
@@ -257,7 +264,7 @@ export class TaskWarriorService {
     if (/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}Z)?$/.test(timestamp)) {
       return timestamp;
     }
-    
+
     // TaskWarrior format: YYYYMMDDTHHMMSSZ
     const year = timestamp.substring(0, 4);
     const month = timestamp.substring(4, 6);
@@ -265,7 +272,7 @@ export class TaskWarriorService {
     const hour = timestamp.substring(9, 11);
     const minute = timestamp.substring(11, 13);
     const second = timestamp.substring(13, 15);
-    
+
     // If we have a time component, include it
     if (hour && minute) {
       return `${year}-${month}-${day}T${hour}:${minute}:${second}Z`;
@@ -279,14 +286,14 @@ export class TaskWarriorService {
     if (/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?$/.test(date)) {
       return date;
     }
-    
+
     // Handle Taskwarrior format (e.g., 20250327T061405Z)
     const taskwarriorFormat = /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z$/;
     if (taskwarriorFormat.test(date)) {
       const [, year, month, day, hours, minutes] = date.match(taskwarriorFormat) || [];
       return `${year}-${month}-${day}T${hours}:${minutes}`;
     }
-    
+
     // Otherwise parse and format from other date formats
     const d = new Date(date);
     const year = d.getFullYear();
@@ -294,7 +301,7 @@ export class TaskWarriorService {
     const day = String(d.getDate()).padStart(2, '0');
     const hours = String(d.getHours()).padStart(2, '0');
     const minutes = String(d.getMinutes()).padStart(2, '0');
-    
+
     // If the original date had a time component, include it
     if (date.includes('T')) {
       return `${year}-${month}-${day}T${hours}:${minutes}`;
@@ -306,4 +313,4 @@ export class TaskWarriorService {
     // Remove any shell metacharacters that could be used for command injection
     return query.replace(/[;&|`$]/g, '');
   }
-} 
+}

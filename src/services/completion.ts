@@ -20,18 +20,18 @@ export class CompletionService {
     this.projectFuse = new Fuse([], {
       threshold: 0.3,
       includeScore: true,
-      useExtendedSearch: true
+      useExtendedSearch: true,
     });
     this.tagFuse = new Fuse([], {
       threshold: 0.3,
       includeScore: true,
-      useExtendedSearch: true
+      useExtendedSearch: true,
     });
     this.taskFuse = new Fuse([], {
       keys: ['description'],
       threshold: 0.3,
       includeScore: true,
-      useExtendedSearch: true
+      useExtendedSearch: true,
     });
   }
 
@@ -53,60 +53,60 @@ export class CompletionService {
 
   private async ensureTasksLoaded() {
     if (!this.tasksLoaded) {
-      this.tasks = await this.taskService.listTasks({ query: "status:pending" });
+      this.tasks = await this.taskService.listTasks({ query: 'status:pending' });
       this.taskFuse.setCollection(this.tasks);
       this.tasksLoaded = true;
     }
   }
 
-  async completeProjects(input: string): Promise<{ values: string[], total: number, hasMore: boolean }> {
+  async completeProjects(input: string): Promise<{ values: string[]; total: number; hasMore: boolean }> {
     await this.ensureProjectsLoaded();
     if (!input.trim()) {
       return {
         values: this.projects,
         total: this.projects.length,
-        hasMore: false
+        hasMore: false,
       };
     }
     const results = this.projectFuse.search(input);
     return {
       values: results.map(r => r.item),
       total: results.length,
-      hasMore: false
+      hasMore: false,
     };
   }
 
-  async completeTags(input: string): Promise<{ values: string[], total: number, hasMore: boolean }> {
+  async completeTags(input: string): Promise<{ values: string[]; total: number; hasMore: boolean }> {
     await this.ensureTagsLoaded();
     if (!input.trim()) {
       return {
         values: this.tags,
         total: this.tags.length,
-        hasMore: false
+        hasMore: false,
       };
     }
     const results = this.tagFuse.search(input);
     return {
       values: results.map(r => r.item),
       total: results.length,
-      hasMore: false
+      hasMore: false,
     };
   }
 
-  async completeTaskDescriptions(input: string): Promise<{ values: string[], total: number, hasMore: boolean }> {
+  async completeTaskDescriptions(input: string): Promise<{ values: string[]; total: number; hasMore: boolean }> {
     await this.ensureTasksLoaded();
     if (!input.trim()) {
       return {
         values: this.tasks.map(t => t.description),
         total: this.tasks.length,
-        hasMore: false
+        hasMore: false,
       };
     }
     const results = this.taskFuse.search(input);
     return {
       values: results.map(r => r.item.description),
       total: results.length,
-      hasMore: false
+      hasMore: false,
     };
   }
-} 
+}
